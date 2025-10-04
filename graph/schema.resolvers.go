@@ -13,7 +13,20 @@ import (
 
 // UpsertCharacter is the resolver for the upsertCharacter field.
 func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.CharacterInput) (*model.Character, error) {
-	panic(fmt.Errorf("not implemented: UpsertCharacter - upsertCharacter"))
+	if len(r.CharacterStore) == 0 {
+		r.CharacterStore = map[string]model.Character{}
+	}
+
+	if input.ID != nil {
+		r.CharacterStore[*input.ID] = model.Character{ID: *input.ID, Name: input.Name}
+		newCharacter := r.CharacterStore[*input.ID]
+		return &newCharacter, nil
+	}
+
+	character := model.Character{ID: *input.ID, Name: input.Name}
+	r.CharacterStore[*input.ID] = character
+
+	return &character, nil
 }
 
 // Character is the resolver for the character field.
@@ -23,7 +36,13 @@ func (r *queryResolver) Character(ctx context.Context, id string) (*model.Charac
 
 // Kooks is the resolver for the kooks field.
 func (r *queryResolver) Kooks(ctx context.Context) ([]*model.Character, error) {
-	panic(fmt.Errorf("not implemented: Kooks - kooks"))
+	charaterValues := []*model.Character{}
+
+	for _, v := range r.CharacterStore {
+		charaterValues = append(charaterValues, &v)
+	}
+	return charaterValues, nil
+
 }
 
 // Pogues is the resolver for the pogues field.
@@ -39,18 +58,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
-}
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
-}
-*/

@@ -14,6 +14,6 @@ type Character {
 }
 
 input CharacterInput {
-  id: String!
+  id: String
   name: String!
 }

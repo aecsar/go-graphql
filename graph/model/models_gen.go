@@ -8,8 +8,8 @@ type Character struct {
 }
 
 type CharacterInput struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID   *string `json:"id,omitempty"`
+	Name string  `json:"name"`
 }
 
 type Mutation struct {
