@@ -18,12 +18,12 @@ func (r *mutationResolver) UpsertCharacter(ctx context.Context, input model.Char
 	}
 
 	if input.ID != nil {
-		r.CharacterStore[*input.ID] = model.Character{ID: *input.ID, Name: input.Name}
+		r.CharacterStore[*input.ID] = model.Character{ID: *input.ID, Name: input.Name, IsHero: *input.IsHero, Type: input.Type}
 		newCharacter := r.CharacterStore[*input.ID]
 		return &newCharacter, nil
 	}
 
-	character := model.Character{ID: *input.ID, Name: input.Name}
+	character := model.Character{ID: *input.ID, Name: input.Name, Type: input.Type, IsHero: *input.IsHero}
 	r.CharacterStore[*input.ID] = character
 
 	return &character, nil
@@ -42,7 +42,6 @@ func (r *queryResolver) Kooks(ctx context.Context) ([]*model.Character, error) {
 		charaterValues = append(charaterValues, &v)
 	}
 	return charaterValues, nil
-
 }
 
 // Pogues is the resolver for the pogues field.

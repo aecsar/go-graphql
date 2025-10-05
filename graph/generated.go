@@ -48,8 +48,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Character struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		ID     func(childComplexity int) int
+		IsHero func(childComplexity int) int
+		Name   func(childComplexity int) int
+		Type   func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -97,12 +99,24 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Character.ID(childComplexity), true
+	case "Character.isHero":
+		if e.complexity.Character.IsHero == nil {
+			break
+		}
+
+		return e.complexity.Character.IsHero(childComplexity), true
 	case "Character.name":
 		if e.complexity.Character.Name == nil {
 			break
 		}
 
 		return e.complexity.Character.Name(childComplexity), true
+	case "Character.type":
+		if e.complexity.Character.Type == nil {
+			break
+		}
+
+		return e.complexity.Character.Type(childComplexity), true
 
 	case "Mutation.upsertCharacter":
 		if e.complexity.Mutation.UpsertCharacter == nil {
@@ -408,6 +422,64 @@ func (ec *executionContext) fieldContext_Character_name(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Character_type(ctx context.Context, field graphql.CollectedField, obj *model.Character) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Character_type,
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		ec.marshalNCharacterType2githubᚗcomᚋaecsarᚋgoᚑgraphqlᚋgraphᚋmodelᚐCharacterType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Character_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Character",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type CharacterType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Character_isHero(ctx context.Context, field graphql.CollectedField, obj *model.Character) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Character_isHero,
+		func(ctx context.Context) (any, error) {
+			return obj.IsHero, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Character_isHero(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Character",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_upsertCharacter(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -437,6 +509,10 @@ func (ec *executionContext) fieldContext_Mutation_upsertCharacter(ctx context.Co
 				return ec.fieldContext_Character_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Character_type(ctx, field)
+			case "isHero":
+				return ec.fieldContext_Character_isHero(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -484,6 +560,10 @@ func (ec *executionContext) fieldContext_Query_character(ctx context.Context, fi
 				return ec.fieldContext_Character_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Character_type(ctx, field)
+			case "isHero":
+				return ec.fieldContext_Character_isHero(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -530,6 +610,10 @@ func (ec *executionContext) fieldContext_Query_kooks(_ context.Context, field gr
 				return ec.fieldContext_Character_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Character_type(ctx, field)
+			case "isHero":
+				return ec.fieldContext_Character_isHero(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -565,6 +649,10 @@ func (ec *executionContext) fieldContext_Query_pogues(_ context.Context, field g
 				return ec.fieldContext_Character_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Character_name(ctx, field)
+			case "type":
+				return ec.fieldContext_Character_type(ctx, field)
+			case "isHero":
+				return ec.fieldContext_Character_isHero(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Character", field.Name)
 		},
@@ -2133,7 +2221,7 @@ func (ec *executionContext) unmarshalInputCharacterInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name"}
+	fieldsInOrder := [...]string{"id", "isHero", "name", "type"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2147,6 +2235,13 @@ func (ec *executionContext) unmarshalInputCharacterInput(ctx context.Context, ob
 				return it, err
 			}
 			it.ID = data
+		case "isHero":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isHero"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsHero = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -2154,6 +2249,13 @@ func (ec *executionContext) unmarshalInputCharacterInput(ctx context.Context, ob
 				return it, err
 			}
 			it.Name = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNCharacterType2githubᚗcomᚋaecsarᚋgoᚑgraphqlᚋgraphᚋmodelᚐCharacterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
 		}
 	}
 
@@ -2186,6 +2288,16 @@ func (ec *executionContext) _Character(ctx context.Context, sel ast.SelectionSet
 			}
 		case "name":
 			out.Values[i] = ec._Character_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Character_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isHero":
+			out.Values[i] = ec._Character_isHero(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2786,6 +2898,16 @@ func (ec *executionContext) marshalNCharacter2ᚖgithubᚗcomᚋaecsarᚋgoᚑgr
 func (ec *executionContext) unmarshalNCharacterInput2githubᚗcomᚋaecsarᚋgoᚑgraphqlᚋgraphᚋmodelᚐCharacterInput(ctx context.Context, v any) (model.CharacterInput, error) {
 	res, err := ec.unmarshalInputCharacterInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCharacterType2githubᚗcomᚋaecsarᚋgoᚑgraphqlᚋgraphᚋmodelᚐCharacterType(ctx context.Context, v any) (model.CharacterType, error) {
+	var res model.CharacterType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNCharacterType2githubᚗcomᚋaecsarᚋgoᚑgraphqlᚋgraphᚋmodelᚐCharacterType(ctx context.Context, sel ast.SelectionSet, v model.CharacterType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {

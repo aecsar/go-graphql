@@ -11,9 +11,20 @@ type Mutation {
 type Character {
   id: ID!
   name: String!
+  type: CharacterType!
+  isHero: Boolean!
+}
+
+enum CharacterType {
+  "People who are elite with parents having money"
+  KOOKS
+  "People who desperate to move up the social ladder to become new versions of themselves and establish new beginnings"
+  POGUES
 }
 
 input CharacterInput {
   id: String
+  isHero: Boolean
   name: String!
+  type: CharacterType!
 }

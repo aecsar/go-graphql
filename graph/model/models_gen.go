@@ -2,18 +2,86 @@
 
 package model
 
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type Character struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID     string        `json:"id"`
+	Name   string        `json:"name"`
+	Type   CharacterType `json:"type"`
+	IsHero bool          `json:"isHero"`
 }
 
 type CharacterInput struct {
-	ID   *string `json:"id,omitempty"`
-	Name string  `json:"name"`
+	ID     *string       `json:"id,omitempty"`
+	IsHero *bool         `json:"isHero,omitempty"`
+	Name   string        `json:"name"`
+	Type   CharacterType `json:"type"`
 }
 
 type Mutation struct {
 }
 
 type Query struct {
+}
+
+type CharacterType string
+
+const (
+	// People who are elite with parents having money
+	CharacterTypeKooks CharacterType = "KOOKS"
+	// People who desperate to move up the social ladder to become new versions of themselves and establish new beginnings
+	CharacterTypePogues CharacterType = "POGUES"
+)
+
+var AllCharacterType = []CharacterType{
+	CharacterTypeKooks,
+	CharacterTypePogues,
+}
+
+func (e CharacterType) IsValid() bool {
+	switch e {
+	case CharacterTypeKooks, CharacterTypePogues:
+		return true
+	}
+	return false
+}
+
+func (e CharacterType) String() string {
+	return string(e)
+}
+
+func (e *CharacterType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CharacterType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CharacterType", str)
+	}
+	return nil
+}
+
+func (e CharacterType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *CharacterType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e CharacterType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
